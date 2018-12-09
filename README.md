@@ -1,5 +1,7 @@
 # GPS_Taroz  
 Using **RTLSDR** to **Receive GPS signal in Real-time** on Microsoft Windows platform.  
+![GPS_Taroz Image](http://gudduarnav.com/wp-content/uploads/2018/12/word-image.png)
+
 
 # Folders  
 *  **./GPS_Taroz/GNSS_Viewer**:        Contains the software to verify the position reported by the RTLSDR GNSS Software by Taroz. The software named "**GNSS_Viewer-CustomerRelease-2.0.318.exe**" can connect to GNSS hardware (from Skytrac, etc) using UART/COM port and parse NMEA formatted data to report the User Location, Satellite informations, etc.  
