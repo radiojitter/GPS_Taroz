@@ -21,39 +21,6 @@ CHAR* GetThisPathA(CHAR* dest, size_t destSize)
     return dest;
 }
 
-static int bias_tee_is_on=0;
-DWORD WINAPI BiasTeeOn(LPVOID )
-{
-	HMODULE h = GetModuleHandleA(NULL);
-	char exepath[MAX_PATH];
-	GetModuleFileNameA(h,exepath,MAX_PATH);
-	char* path = GetThisPathA(exepath, MAX_PATH);
-
-	char path1[MAX_PATH];
-	strcpy_s(path1,path);
-	strcat_s(path1,"\\bt_driver\\rtl_biast.exe -d 0 -b 1");
-	system(path1);
-
-	bias_tee_is_on=1;
-	return 0;
-}
-
-DWORD WINAPI BiasTeeOff(LPVOID )
-{
-	HMODULE h = GetModuleHandleA(NULL);
-	char exepath[MAX_PATH];
-	GetModuleFileNameA(h,exepath,MAX_PATH);
-	char* path = GetThisPathA(exepath, MAX_PATH);
-
-	char path1[MAX_PATH];
-	strcpy_s(path1,path);
-	strcat_s(path1,"\\bt_driver\\rtl_biast.exe -d 0 -b 0");
-	system(path1);
-
-
-	bias_tee_is_on=0;
-	return 0;
-}
 
 DWORD WINAPI StartRtkNavi(LPVOID )
 {
@@ -67,7 +34,6 @@ DWORD WINAPI StartRtkNavi(LPVOID )
 	strcat_s(path1,"\\rtklib\\rtknavi.exe");
 	system(path1);
 
-	bias_tee_is_on=1;
 	return 0;
 }
 
@@ -84,13 +50,6 @@ int main(array<System::String ^> ^args)
 	System::IO::Directory::SetCurrentDirectory(string_curdir);
 
 
-	// basic initialization
-	CreateThread(NULL,NULL,BiasTeeOn,NULL,NULL,NULL);
-	while(!bias_tee_is_on)
-	{
-		Sleep(100);
-	}
-
 	HANDLE hNavi = CreateThread(NULL,NULL,StartRtkNavi,NULL,NULL,NULL);
 
 	// application
@@ -99,12 +58,7 @@ int main(array<System::String ^> ^args)
 
     Application::Run(gcnew maindlg());
 
-	// exit time work
-	CreateThread(NULL,NULL,BiasTeeOff,NULL,NULL,NULL);
-	while(bias_tee_is_on)
-	{
-		Sleep(100);
-	}
+	
 
 	if(hNavi!=NULL)
 	{

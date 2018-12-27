@@ -288,3 +288,8 @@ int verbose_device_search(char *s)
 }
 
 // vim: tabstop=8:softtabstop=8:shiftwidth=8:noexpandtab
+
+double verbose_get_gain(rtlsdr_dev_t* dev)
+{
+	return rtlsdr_get_tuner_gain(dev)*0.1;
+}

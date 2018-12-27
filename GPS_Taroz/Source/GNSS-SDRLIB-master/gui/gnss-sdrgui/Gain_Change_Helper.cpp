@@ -33,7 +33,7 @@ private:
 		{
 			if(_UpdateGain == NULL)
 			{
-				gainValue = gainpercent;
+				gainValue = 0.0; //gainpercent;
 			}
 			else
 			{

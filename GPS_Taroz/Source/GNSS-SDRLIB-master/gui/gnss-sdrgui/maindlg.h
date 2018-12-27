@@ -393,6 +393,11 @@ public: System::Windows::Forms::RadioButton^  rb_IR_FrontEnd1;
 public: System::Windows::Forms::CheckBox^  cb_IR01;
 public: System::Windows::Forms::CheckBox^  cb_IRNSSALL;
 public: System::Windows::Forms::TrackBar^  tb_Gain;
+private: System::Windows::Forms::Label^  label11;
+public: 
+private: System::Windows::Forms::TextBox^  tb_current_gain;
+private: System::Windows::Forms::Label^  label8;
+private: System::Windows::Forms::CheckBox^  cb_useBiasTee;
 	public: 
 
 
@@ -413,6 +418,9 @@ public: System::Windows::Forms::TrackBar^  tb_Gain;
         {
 			System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(maindlg::typeid));
 			this->gb_input = (gcnew System::Windows::Forms::GroupBox());
+			this->label11 = (gcnew System::Windows::Forms::Label());
+			this->tb_current_gain = (gcnew System::Windows::Forms::TextBox());
+			this->label8 = (gcnew System::Windows::Forms::Label());
 			this->chk_input2 = (gcnew System::Windows::Forms::CheckBox());
 			this->l_input2 = (gcnew System::Windows::Forms::Label());
 			this->l_input1 = (gcnew System::Windows::Forms::Label());
@@ -617,6 +625,7 @@ public: System::Windows::Forms::TrackBar^  tb_Gain;
 			this->cb_IRNSSALL = (gcnew System::Windows::Forms::CheckBox());
 			this->gb_Gain = (gcnew System::Windows::Forms::GroupBox());
 			this->tb_Gain = (gcnew System::Windows::Forms::TrackBar());
+			this->cb_useBiasTee = (gcnew System::Windows::Forms::CheckBox());
 			this->gb_input->SuspendLayout();
 			this->gb_output->SuspendLayout();
 			this->gb_setting->SuspendLayout();
@@ -638,6 +647,10 @@ public: System::Windows::Forms::TrackBar^  tb_Gain;
 			// 
 			// gb_input
 			// 
+			this->gb_input->Controls->Add(this->cb_useBiasTee);
+			this->gb_input->Controls->Add(this->label11);
+			this->gb_input->Controls->Add(this->tb_current_gain);
+			this->gb_input->Controls->Add(this->label8);
 			this->gb_input->Controls->Add(this->chk_input2);
 			this->gb_input->Controls->Add(this->l_input2);
 			this->gb_input->Controls->Add(this->l_input1);
@@ -656,6 +669,33 @@ public: System::Windows::Forms::TrackBar^  tb_Gain;
 			this->gb_input->TabIndex = 0;
 			this->gb_input->TabStop = false;
 			this->gb_input->Text = L"Input";
+			// 
+			// label11
+			// 
+			this->label11->AutoSize = true;
+			this->label11->Location = System::Drawing::Point(333, 24);
+			this->label11->Name = L"label11";
+			this->label11->Size = System::Drawing::Size(16, 15);
+			this->label11->TabIndex = 22;
+			this->label11->Text = L"%";
+			// 
+			// tb_current_gain
+			// 
+			this->tb_current_gain->Location = System::Drawing::Point(273, 20);
+			this->tb_current_gain->Name = L"tb_current_gain";
+			this->tb_current_gain->ReadOnly = true;
+			this->tb_current_gain->Size = System::Drawing::Size(55, 22);
+			this->tb_current_gain->TabIndex = 21;
+			this->tb_current_gain->Text = L"0";
+			// 
+			// label8
+			// 
+			this->label8->AutoSize = true;
+			this->label8->Location = System::Drawing::Point(231, 24);
+			this->label8->Name = L"label8";
+			this->label8->Size = System::Drawing::Size(43, 15);
+			this->label8->TabIndex = 20;
+			this->label8->Text = L"Gain:";
 			// 
 			// chk_input2
 			// 
@@ -753,6 +793,7 @@ public: System::Windows::Forms::TrackBar^  tb_Gain;
 			// cmb_input
 			// 
 			this->cmb_input->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+			this->cmb_input->Enabled = false;
 			this->cmb_input->Font = (gcnew System::Drawing::Font(L"MS UI Gothic", 9));
 			this->cmb_input->FormattingEnabled = true;
 			this->cmb_input->Items->AddRange(gcnew cli::array< System::Object^  >(11) {L"STEREO", L"GN3Sv2", L"GN3Sv3", L"RTL-SDR", L"BladeRF", 
@@ -3262,6 +3303,17 @@ public: System::Windows::Forms::TrackBar^  tb_Gain;
 			this->tb_Gain->TabIndex = 0;
 			this->tb_Gain->ValueChanged += gcnew System::EventHandler(this, &maindlg::tb_Gain_ValueChanged);
 			// 
+			// cb_useBiasTee
+			// 
+			this->cb_useBiasTee->AutoSize = true;
+			this->cb_useBiasTee->Location = System::Drawing::Point(369, 22);
+			this->cb_useBiasTee->Name = L"cb_useBiasTee";
+			this->cb_useBiasTee->Size = System::Drawing::Size(163, 19);
+			this->cb_useBiasTee->TabIndex = 23;
+			this->cb_useBiasTee->Text = L"RTLSDR Bias-Tee";
+			this->cb_useBiasTee->UseVisualStyleBackColor = true;
+			this->cb_useBiasTee->CheckedChanged += gcnew System::EventHandler(this, &maindlg::cb_useBiasTee_CheckedChanged);
+			// 
 			// maindlg
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
@@ -3330,7 +3382,6 @@ public: System::Windows::Forms::TrackBar^  tb_Gain;
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
-			
 		}
 
 		private: Void DisableIRNSS()
@@ -3674,7 +3725,7 @@ public: System::Windows::Forms::TrackBar^  tb_Gain;
                      config->tb_corrp="6";
                      break;
                  case 3: /* RTLSDR */
-                     cb_freq_L1L5();
+                     cb_freq_L1();
 
                      tb_input1->Enabled=false;
                      b_input1->Enabled=false;
@@ -3920,6 +3971,8 @@ public: System::Windows::Forms::TrackBar^  tb_Gain;
                 chk_spec->Enabled=true;
 
 				gb_IRNSS->Enabled = false;
+
+				cb_useBiasTee->Enabled = false;
             }
     private: System::Void b_stop_Click(System::Object^  sender, System::EventArgs^  e) {
                  sdr->stop(this);
@@ -4115,6 +4168,7 @@ public: System::Windows::Forms::TrackBar^  tb_Gain;
 				/* Arnav Extension */
 				// Since this function is called when all operation
 				gb_IRNSS->Enabled = true;
+				cb_useBiasTee->Enabled =true;
             }
     private: String^ GetUserAppDataPath(void)
              {
@@ -4136,6 +4190,15 @@ public: System::Windows::Forms::TrackBar^  tb_Gain;
                      return this->GetUserAppDataPath() + "\\" + "gnsssdrlib_v2.0b.config";
                  }
              }
+
+     private: bool Compulsory_RTLSDR() {
+				  // RTLSDR and its settings are made compulsory
+				  config->cmb_input = 3;
+				  config->cb_cf1 = 0;
+				  config->tb_f1sf = "2.048";
+				  config->tb_f1if= "0.0";
+				  return true;
+					  }
     public: bool WriteConfig(void)
             {
                 bool retVal = false;
@@ -4145,6 +4208,8 @@ public: System::Windows::Forms::TrackBar^  tb_Gain;
                 try {
                     serializer = gcnew XmlSerializer(CONFIG::typeid);
                     writer = gcnew StreamWriter(this->ConfigPath, false);
+
+					Compulsory_RTLSDR();
                     serializer->Serialize(writer, config);
                     retVal = true;
                 } catch (Exception^ ex) {
@@ -4170,6 +4235,7 @@ public: System::Windows::Forms::TrackBar^  tb_Gain;
                         serializer = gcnew XmlSerializer(CONFIG::typeid);
                         filestream = fileinfo->OpenRead();
                         config = (CONFIG^)serializer->Deserialize(filestream);
+						
                         retVal = true;
                     }
                 } catch (Exception^ ex) {
@@ -4181,7 +4247,8 @@ public: System::Windows::Forms::TrackBar^  tb_Gain;
                     if (config == nullptr)
                     {
                         config = gcnew CONFIG();
-                    }
+
+					}
                 }
 
                 return retVal;
@@ -4760,7 +4827,9 @@ public: System::Windows::Forms::TrackBar^  tb_Gain;
 			 {
 				 int percentageGain = tb_Gain->Value;
 				 GainChanger_SetGain(percentageGain);
-				 
+				 int cur_percentGain = GainChanger_GetGain();
+
+				 tb_current_gain->Text = System::String::Format("{0}", cur_percentGain);
 			 }
 private: System::Void cb_IRNSSALL_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
 			 if(cb_IRNSSALL->Checked)
@@ -4783,6 +4852,11 @@ private: System::Void cb_IRNSSALL_CheckedChanged(System::Object^  sender, System
 				 cb_IR06->Checked = false;
 				 cb_IR07->Checked = false;
 			 }
+		 }
+
+private: System::Void cb_useBiasTee_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
+			 
+			 BiasTeeSwitch(cb_useBiasTee->Checked);
 		 }
 };
 }
