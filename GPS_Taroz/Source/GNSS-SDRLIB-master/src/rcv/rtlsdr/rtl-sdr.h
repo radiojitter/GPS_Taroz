@@ -41,10 +41,6 @@ extern int rtlsdr_start(void);
 extern void rtlsdr_exp(uint8_t *buf, int n, char *expbuf);
 extern void rtlsdr_getbuff(uint64_t buffloc, int n, char *expbuf);
 extern void frtlsdr_pushtomembuf(void);
-extern void BiasTeeSwitch(bool bOn);
-
-
-
 /*----------------------------------------------------------------------------*/
 
 typedef struct rtlsdr_dev rtlsdr_dev_t;
@@ -512,12 +508,6 @@ int verbose_reset_buffer(rtlsdr_dev_t *dev);
  */
 
 int verbose_device_search(char *s);
-
-
-/*
-   Returns the gain set for RTLSDR
-*/
-double verbose_get_gain(rtlsdr_dev_t* dev);
 
 #ifdef __cplusplus
 }

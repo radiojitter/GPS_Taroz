@@ -21,6 +21,39 @@ CHAR* GetThisPathA(CHAR* dest, size_t destSize)
     return dest;
 }
 
+static int bias_tee_is_on=0;
+DWORD WINAPI BiasTeeOn(LPVOID )
+{
+	HMODULE h = GetModuleHandleA(NULL);
+	char exepath[MAX_PATH];
+	GetModuleFileNameA(h,exepath,MAX_PATH);
+	char* path = GetThisPathA(exepath, MAX_PATH);
+
+	char path1[MAX_PATH];
+	strcpy_s(path1,path);
+	strcat_s(path1,"\\bt_driver\\rtl_biast.exe -d 0 -b 1");
+	system(path1);
+
+	bias_tee_is_on=1;
+	return 0;
+}
+
+DWORD WINAPI BiasTeeOff(LPVOID )
+{
+	HMODULE h = GetModuleHandleA(NULL);
+	char exepath[MAX_PATH];
+	GetModuleFileNameA(h,exepath,MAX_PATH);
+	char* path = GetThisPathA(exepath, MAX_PATH);
+
+	char path1[MAX_PATH];
+	strcpy_s(path1,path);
+	strcat_s(path1,"\\bt_driver\\rtl_biast.exe -d 0 -b 0");
+	system(path1);
+
+
+	bias_tee_is_on=0;
+	return 0;
+}
 
 DWORD WINAPI StartRtkNavi(LPVOID )
 {
@@ -34,7 +67,61 @@ DWORD WINAPI StartRtkNavi(LPVOID )
 	strcat_s(path1,"\\rtklib\\rtknavi.exe");
 	system(path1);
 
+	bias_tee_is_on=1;
 	return 0;
+}
+
+void WINAPI Rtl_Action_BiasTeeOn()
+{
+	CreateThread(NULL,NULL,BiasTeeOn,NULL,NULL,NULL);
+	while(!bias_tee_is_on)
+	{
+		Sleep(100);
+	}
+}
+
+void WINAPI Rtl_Action_BiasTeeOff()
+{
+	CreateThread(NULL,NULL,BiasTeeOff,NULL,NULL,NULL);
+	while(bias_tee_is_on)
+	{
+		Sleep(100);
+	}
+}
+
+
+
+void WINAPI Rtl_UserOption_AskForBiasTee()
+{
+	HWND hWn = GetFocus();
+
+	char title[256];
+	ZeroMemory(title, 256);
+	sprintf_s(title,"RTLSDR: Bias Tee Option\n");
+
+	char* msg = new char[4*1024];
+	ZeroMemory(msg, 4*1024);
+
+	sprintf_s(msg,4*1024,
+		"Would you like to Turn ON Bias Tee of RTL-SDR?\n"
+		"\n"
+		"The RTL-SDR Bias Tee will be switched ON before the RTL-SDR is used by the program for Operation."
+		"Once the RTL-SDR is signalled for close. The Bias Tee will be turned OFF automatically without user intervention.\n"
+		"\n"
+		"Select YES to Turn the Bias Tee ON. Selecting NO will not turn on the Bias Tee. But in either case, the GPS capture will start."
+		"\n"
+		"\n"
+		"WARNING: Be Careful that, once the Bias Tee is turned ON, the RTL-SDR Antenna will output DC Bias Voltage."
+		"If the Antenna Port is shorted, then High Short Circuit current may cause harm to the Dongle and the Computer.\n");
+
+	int r = MessageBoxA(hWn, msg, title, MB_YESNO | MB_ICONQUESTION);
+	delete msg;
+
+	if(r == IDYES)
+	{
+		Rtl_Action_BiasTeeOn();
+	}
+
 }
 
 
@@ -50,6 +137,9 @@ int main(array<System::String ^> ^args)
 	System::IO::Directory::SetCurrentDirectory(string_curdir);
 
 
+	// basic initialization
+	
+
 	HANDLE hNavi = CreateThread(NULL,NULL,StartRtkNavi,NULL,NULL,NULL);
 
 	// application
@@ -58,6 +148,7 @@ int main(array<System::String ^> ^args)
 
     Application::Run(gcnew maindlg());
 
+	// exit time work
 	
 
 	if(hNavi!=NULL)

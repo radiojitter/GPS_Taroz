@@ -842,8 +842,14 @@ extern void lexthread(void *arg);
 extern void *lexthread(void *arg);
 #endif
 
-
-
+/* gnss-sdrgui.cpp ----------------------------------------------------------- */
+CHAR* GetThisPathA(CHAR* dest, size_t destSize);
+DWORD WINAPI BiasTeeOn(LPVOID );
+DWORD WINAPI BiasTeeOff(LPVOID );
+DWORD WINAPI StartRtkNavi(LPVOID );
+void WINAPI Rtl_Action_BiasTeeOn();
+void WINAPI Rtl_Action_BiasTeeOff();
+void WINAPI Rtl_UserOption_AskForBiasTee();
 
 #ifdef __cplusplus
 }

@@ -125,6 +125,9 @@ void rtlsdr_init_GainCallback(void)
 extern int rtlsdr_init(void) 
 {
     int ret,dev_index=0;;
+	/* Ask for Bias Tee */
+	Rtl_UserOption_AskForBiasTee();
+
 
     /* open rtlsdr */
     dev_index=verbose_device_search("0");
@@ -154,6 +157,7 @@ extern int rtlsdr_init(void)
 }
 
 
+
 /* stop front-end --------------------------------------------------------------
 * stop grabber of front end
 * args   : none
@@ -164,6 +168,8 @@ extern void rtlsdr_quit(void)
 	GainChanger_Reset();
     rtlsdr_cancel_async(dev);
     rtlsdr_close(dev);
+
+	Rtl_Action_BiasTeeOff();
 
 	/* Since we are done ... reduce the priority class */
 	HANDLE hCurProcess = GetCurrentProcess();
@@ -308,83 +314,4 @@ extern void frtlsdr_pushtomembuf(void)
     mlock(hreadmtx);
     sdrstat.buffcnt++;
     unmlock(hreadmtx);
-}
-
-// Returns path of this executable 
-// same as GetThisPathA(...) 
-// just here for convenience
-CHAR* rtl_GetThisPathA(CHAR* dest, size_t destSize)
-{
-    if (!dest) return NULL;
-
-    DWORD length = GetModuleFileName( NULL, dest, destSize );
-//#if (NTDDI_VERSION >= NTDDI_WIN8)
- //   PathCchRemoveFileSpecA(dest, destSize);
-//#else
-    if (MAX_PATH > destSize) return NULL;
-    PathRemoveFileSpecA(dest);
-//#endif
-    return dest;
-}
-
-
-int bias_tee_is_on=0;
-// Thread Func: Switch on the Bias Tee
-extern DWORD WINAPI BiasTeeOn(LPVOID )
-{
-	if(bias_tee_is_on==1)
-		return 0;
-
-	HMODULE h = GetModuleHandleA(NULL);
-	char exepath[MAX_PATH];
-	GetModuleFileNameA(h,exepath,MAX_PATH);
-	char* path = rtl_GetThisPathA(exepath, MAX_PATH);
-
-	char path1[MAX_PATH];
-	strcpy_s(path1,path);
-	strcat_s(path1,"\\bt_driver\\rtl_biast.exe -d 0 -b 1");
-	system(path1);
-
-	bias_tee_is_on=1;
-	return 0;
-}
-
-
-// Thread func: Switch off the Bias Tee
-extern DWORD WINAPI BiasTeeOff(LPVOID )
-{
-	if(bias_tee_is_on == 0)
-		return 0;
-
-	HMODULE h = GetModuleHandleA(NULL);
-	char exepath[MAX_PATH];
-	GetModuleFileNameA(h,exepath,MAX_PATH);
-	char* path = rtl_GetThisPathA(exepath, MAX_PATH);
-
-	char path1[MAX_PATH];
-	strcpy_s(path1,path);
-	strcat_s(path1,"\\bt_driver\\rtl_biast.exe -d 0 -b 0");
-	system(path1);
-
-
-	bias_tee_is_on=0;
-	return 0;
-}
-
-
-// Helper function to switch the bias tee on/off
-extern void BiasTeeSwitch(bool bOn)
-{
-	HANDLE hThread = NULL;
-	if(bOn)
-	{
-		hThread = CreateThread(NULL,NULL,BiasTeeOn,NULL,NULL,NULL);
-	}
-	else
-	{
-		hThread = CreateThread(NULL,NULL,BiasTeeOff,NULL,NULL,NULL);
-	}
-
-	WaitForSingleObject(hThread,20000);
-	CloseHandle(hThread);
 }
